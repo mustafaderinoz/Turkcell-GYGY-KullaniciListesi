@@ -14,32 +14,50 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mustafaderinoz.userapp.data.model.User
-
-@OptIn(ExperimentalMaterial3Api::class)
+// Yeni renklerimizi Theme paketinden içe aktarıyoruz:
+import com.mustafaderinoz.userapp.ui.theme.* @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserDetailScreen(
     user: User,
     onBack: () -> Unit
 ) {
     Scaffold(
+        containerColor = SurfaceColor, // Ana arka plan
         topBar = {
-            TopAppBar(
-                title = { Text("Kullanıcı Detayı") },
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Kullanıcı Detayı",
+                        color = PrimaryColor,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Geri"
+                            contentDescription = "Geri",
+                            tint = PrimaryColor
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                actions = {
+                    IconButton(onClick = { /* Dark mode toggle action */ }) {
+                        Icon(
+                            imageVector = Icons.Default.DarkMode,
+                            contentDescription = "Tema Değiştir",
+                            tint = PrimaryColor
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = SurfaceColor
                 )
             )
         }
@@ -51,110 +69,122 @@ fun UserDetailScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(24.dp))
+
             // Büyük Avatar
-            Spacer(modifier = Modifier.height(32.dp))
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(100.dp)
+                    .size(120.dp)
+                    .shadow(
+                        elevation = 8.dp,
+                        shape = CircleShape,
+                        ambientColor = PrimaryColor,
+                        spotColor = PrimaryColor
+                    )
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .background(SecondaryContainerColor)
             ) {
                 Text(
                     text = user.name.first().uppercaseChar().toString(),
-                    fontSize = 44.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = OnSurfaceColor
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
+            // İsim ve Kullanıcı Adı
             Text(
                 text = user.name,
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = OnSurfaceColor
                 )
             )
             Text(
                 text = "@${user.username}",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.primary
+                color = OutlineVariantColor
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Bilgi Kartları
-            Card(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
+                    .padding(horizontal = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    DetailRow(
-                        icon = Icons.Default.Email,
-                        label = "Email",
-                        value = user.email
-                    )
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
-                    DetailRow(
-                        icon = Icons.Default.Phone,
-                        label = "Telefon",
-                        value = user.phone
-                    )
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
-                    DetailRow(
-                        icon = Icons.Default.Language,
-                        label = "Website",
-                        value = user.website
-                    )
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
-                    DetailRow(
-                        icon = Icons.Default.Person,
-                        label = "Kullanıcı Adı",
-                        value = user.username
-                    )
-                }
+                DetailCard(icon = Icons.Default.Email, label = "EMAİL", value = user.email)
+                DetailCard(icon = Icons.Default.Phone, label = "TELEFON", value = user.phone)
+                DetailCard(icon = Icons.Default.Language, label = "WEBSİTE", value = user.website, isLink = true)
+                DetailCard(icon = Icons.Default.AlternateEmail, label = "KULLANICI ADI", value = user.username)
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
 
 @Composable
-private fun DetailRow(
-    icon: ImageVector,
+private fun DetailCard(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
-    value: String
+    value: String,
+    isLink: Boolean = false
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = label,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(20.dp)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = SurfaceContainerLowest
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 0.5.dp
         )
-        Column {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.outline
-            )
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Medium
-                ),
-                color = MaterialTheme.colorScheme.onSurface
-            )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(SurfaceContainerLow),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = label,
+                    tint = PrimaryColor,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            Column {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 1.sp
+                    ),
+                    color = OutlineVariantColor
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = if (isLink) FontWeight.Medium else FontWeight.Normal
+                    ),
+                    color = if (isLink) PrimaryColor else OnSurfaceColor
+                )
+            }
         }
     }
 }

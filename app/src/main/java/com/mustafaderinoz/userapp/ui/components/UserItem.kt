@@ -7,8 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,6 +18,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mustafaderinoz.userapp.data.model.User
+// Tema renklerini dahil ediyoruz
+import com.mustafaderinoz.userapp.ui.theme.*
 
 @Composable
 fun UserItem(
@@ -29,13 +30,15 @@ fun UserItem(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
+            // Dış padding'i kaldırdık; UserListScreen'deki spacedBy(24.dp) boşlukları yönetecek.
             .clickable { onClick() }
             .animateContentSize(),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        // DESIGN.md: "We reject the drop shadow of 2014." - Derinlik sıfırlandı.
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            // DESIGN.md: İnteraktif kartlar SurfaceContainerLowest (Beyaz) olmalı.
+            containerColor = SurfaceContainerLowest
         )
     ) {
         Row(
@@ -45,27 +48,25 @@ fun UserItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Dairesel Avatar — İsmin baş harfi
+            // Büyük, Dairesel Avatar (Soft & Approachable Identity)
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(52.dp)
+                    .size(56.dp)
                     .clip(CircleShape)
-                    .background(
-                        color = MaterialTheme.colorScheme.primaryContainer
-                    )
+                    .background(color = SecondaryContainerColor)
             ) {
                 Text(
                     text = user.name.first().uppercaseChar().toString(),
                     style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 22.sp
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 24.sp
                     ),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = OnSurfaceColor
                 )
             }
 
-            // Bilgiler
+            // Bilgiler - Editoryal Tipografi Hiyerarşisi
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -73,57 +74,30 @@ fun UserItem(
                 Text(
                     text = user.name,
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = (-0.02).sp // Otorite hissi için dar harf aralığı
                     ),
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = OnSurfaceColor,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Email,
-                        contentDescription = "Email",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(14.dp)
-                    )
-                    Text(
-                        text = user.email,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Phone,
-                        contentDescription = "Telefon",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(14.dp)
-                    )
-                    Text(
-                        text = user.phone,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+                // İkon kalabalığını kaldırarak daha sade, okunabilir bir "Label" stili yarattık
+                Text(
+                    text = user.email,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = OutlineVariantColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
 
-            // Sağ ok işareti
-            Text(
-                text = "›",
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.outline
+            // Sağ ok işareti (Minimalist bir yönlendirme)
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "Detaya Git",
+                tint = OutlineVariantColor,
+                modifier = Modifier.size(24.dp)
             )
         }
     }
