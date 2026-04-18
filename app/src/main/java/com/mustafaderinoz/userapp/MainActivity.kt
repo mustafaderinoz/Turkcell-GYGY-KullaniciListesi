@@ -5,8 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -23,15 +22,26 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            UserAppTheme {
-                UserNavHost()
+            // Sistemin mevcut temasını varsayılan olarak alıyoruz
+            val systemTheme = isSystemInDarkTheme()
+            // Tema durumunu tutan State
+            var isDarkTheme by remember { mutableStateOf(systemTheme) }
+
+            UserAppTheme(darkTheme = isDarkTheme) {
+                UserNavHost(
+                    isDarkTheme = isDarkTheme,
+                    onThemeToggle = { isDarkTheme = !isDarkTheme }
+                )
             }
         }
     }
 }
 
 @Composable
-fun UserNavHost() {
+fun UserNavHost(
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit
+) {
     val navController = rememberNavController()
     val gson = remember { Gson() }
 
@@ -39,8 +49,9 @@ fun UserNavHost() {
 
         composable("user_list") {
             UserListScreen(
+                isDarkTheme = isDarkTheme, // Durumu ekrana gönder
+                onThemeToggle = onThemeToggle, // Tıklama olayını ekrana gönder
                 onUserClick = { user ->
-                    // User nesnesini JSON'a çevirerek route'a geç
                     val userJson = gson.toJson(user)
                     val encoded = java.net.URLEncoder.encode(userJson, "UTF-8")
                     navController.navigate("user_detail/$encoded")
@@ -54,6 +65,8 @@ fun UserNavHost() {
             val user = gson.fromJson(decoded, User::class.java)
             UserDetailScreen(
                 user = user,
+                isDarkTheme = isDarkTheme, // Durumu ekrana gönder
+                onThemeToggle = onThemeToggle, // Tıklama olayını ekrana gönder
                 onBack = { navController.popBackStack() }
             )
         }

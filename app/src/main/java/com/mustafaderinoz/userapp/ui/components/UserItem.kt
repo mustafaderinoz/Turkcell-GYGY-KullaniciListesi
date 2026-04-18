@@ -30,15 +30,15 @@ fun UserItem(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            // Dış padding'i kaldırdık; UserListScreen'deki spacedBy(24.dp) boşlukları yönetecek.
+
             .clickable { onClick() }
             .animateContentSize(),
         shape = RoundedCornerShape(16.dp),
-        // DESIGN.md: "We reject the drop shadow of 2014." - Derinlik sıfırlandı.
+
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(
-            // DESIGN.md: İnteraktif kartlar SurfaceContainerLowest (Beyaz) olmalı.
-            containerColor = SurfaceContainerLowest
+
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
         Row(
@@ -54,7 +54,7 @@ fun UserItem(
                 modifier = Modifier
                     .size(56.dp)
                     .clip(CircleShape)
-                    .background(color = SecondaryContainerColor)
+                    .background(color = MaterialTheme.colorScheme.secondaryContainer)
             ) {
                 Text(
                     text = user.name.first().uppercaseChar().toString(),
@@ -62,7 +62,7 @@ fun UserItem(
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 24.sp
                     ),
-                    color = OnSurfaceColor
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -77,7 +77,7 @@ fun UserItem(
                         fontWeight = FontWeight.Bold,
                         letterSpacing = (-0.02).sp // Otorite hissi için dar harf aralığı
                     ),
-                    color = OnSurfaceColor,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -86,7 +86,7 @@ fun UserItem(
                 Text(
                     text = user.email,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = OutlineVariantColor,
+                    color = MaterialTheme.colorScheme.outlineVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -96,7 +96,7 @@ fun UserItem(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = "Detaya Git",
-                tint = OutlineVariantColor,
+                tint = MaterialTheme.colorScheme.outlineVariant,
                 modifier = Modifier.size(24.dp)
             )
         }

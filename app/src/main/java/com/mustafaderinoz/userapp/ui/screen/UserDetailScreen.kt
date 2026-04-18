@@ -24,16 +24,18 @@ import com.mustafaderinoz.userapp.ui.theme.* @OptIn(ExperimentalMaterial3Api::cl
 @Composable
 fun UserDetailScreen(
     user: User,
+    isDarkTheme: Boolean, // YENİ
+    onThemeToggle: () -> Unit, // YENİ
     onBack: () -> Unit
 ) {
     Scaffold(
-        containerColor = SurfaceColor, // Ana arka plan
+        containerColor = MaterialTheme.colorScheme.surface, // Ana arka plan
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
                         text = "Kullanıcı Detayı",
-                        color = PrimaryColor,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
@@ -43,21 +45,22 @@ fun UserDetailScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Geri",
-                            tint = PrimaryColor
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Dark mode toggle action */ }) {
+                    IconButton(onClick = onThemeToggle) {
                         Icon(
-                            imageVector = Icons.Default.DarkMode,
+
+                            imageVector = if (isDarkTheme) Icons.Default.DarkMode else Icons.Default.LightMode,
                             contentDescription = "Tema Değiştir",
-                            tint = PrimaryColor
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = SurfaceColor
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
             )
         }
@@ -79,17 +82,17 @@ fun UserDetailScreen(
                     .shadow(
                         elevation = 8.dp,
                         shape = CircleShape,
-                        ambientColor = PrimaryColor,
-                        spotColor = PrimaryColor
+                        ambientColor = MaterialTheme.colorScheme.primary,
+                        spotColor = MaterialTheme.colorScheme.primary
                     )
                     .clip(CircleShape)
-                    .background(SecondaryContainerColor)
+                    .background(MaterialTheme.colorScheme.secondaryContainer)
             ) {
                 Text(
                     text = user.name.first().uppercaseChar().toString(),
                     fontSize = 48.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    color = OnSurfaceColor
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -100,13 +103,13 @@ fun UserDetailScreen(
                 text = user.name,
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
-                    color = OnSurfaceColor
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             )
             Text(
                 text = "@${user.username}",
                 style = MaterialTheme.typography.bodyLarge,
-                color = OutlineVariantColor
+                color = MaterialTheme.colorScheme.outlineVariant
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -139,7 +142,7 @@ private fun DetailCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = SurfaceContainerLowest
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 0.5.dp
@@ -156,13 +159,13 @@ private fun DetailCard(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
-                    .background(SurfaceContainerLow),
+                    .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.03f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = label,
-                    tint = PrimaryColor,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -174,7 +177,7 @@ private fun DetailCard(
                         fontWeight = FontWeight.SemiBold,
                         letterSpacing = 1.sp
                     ),
-                    color = OutlineVariantColor
+                    color = MaterialTheme.colorScheme.outlineVariant
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
@@ -182,7 +185,7 @@ private fun DetailCard(
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontWeight = if (isLink) FontWeight.Medium else FontWeight.Normal
                     ),
-                    color = if (isLink) PrimaryColor else OnSurfaceColor
+                    color = if (isLink) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                 )
             }
         }

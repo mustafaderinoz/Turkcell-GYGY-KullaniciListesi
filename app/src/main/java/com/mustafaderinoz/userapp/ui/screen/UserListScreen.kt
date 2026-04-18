@@ -4,12 +4,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,24 +26,24 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mustafaderinoz.userapp.data.model.User
 import com.mustafaderinoz.userapp.ui.components.UserItem
-import com.mustafaderinoz.userapp.ui.theme.*
 import com.mustafaderinoz.userapp.viewmodel.UserUiState
 import com.mustafaderinoz.userapp.viewmodel.UserViewModel
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserListScreen(
+    isDarkTheme: Boolean, // Tema durumu eklendi
+    onThemeToggle: () -> Unit, // Tema değiştirme aksiyonu eklendi
     onUserClick: (User) -> Unit,
     viewModel: UserViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
+    val pullRefreshState = rememberPullToRefreshState()
 
     Scaffold(
-        containerColor = SurfaceColor, // Base Tonal Architecture
+        containerColor = MaterialTheme.colorScheme.surface, // Dinamik Tema Rengi
         topBar = {
             TopAppBar(
                 title = {
@@ -47,29 +51,30 @@ fun UserListScreen(
                         Icon(
                             imageVector = Icons.Default.Group,
                             contentDescription = "Kullanıcılar",
-                            tint = PrimaryColor,
+                            tint = MaterialTheme.colorScheme.primary, // Dinamik Tema Rengi
                             modifier = Modifier.padding(end = 8.dp)
                         )
                         Text(
                             text = "Kullanıcılar",
                             style = MaterialTheme.typography.headlineSmall.copy(
                                 fontWeight = FontWeight.SemiBold,
-                                color = PrimaryColor
+                                color = MaterialTheme.colorScheme.primary // Dinamik Tema Rengi
                             )
                         )
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Dark mode toggle action */ }) {
+                    IconButton(onClick = onThemeToggle) {
                         Icon(
-                            imageVector = Icons.Default.DarkMode, // Ay ikonu (Ekran görüntüsü)
+                            // İkonların yerini değiştirdik: Karanlık moddaysa Ay, değilse Güneş göster
+                            imageVector = if (isDarkTheme) Icons.Default.DarkMode else Icons.Default.LightMode,
                             contentDescription = "Tema Değiştir",
-                            tint = PrimaryColor
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = SurfaceColor
+                    containerColor = MaterialTheme.colorScheme.surface // Dinamik Tema Rengi
                 )
             )
         }
@@ -80,7 +85,7 @@ fun UserListScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Arama Çubuğu (Editorial Voice & Ghost Border)
+            // Arama Çubuğu
             SearchBar(
                 query = searchQuery,
                 onQueryChange = viewModel::onSearchQueryChange,
@@ -93,12 +98,21 @@ fun UserListScreen(
             PullToRefreshBox(
                 isRefreshing = isRefreshing,
                 onRefresh = viewModel::refresh,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                state = pullRefreshState,
+                indicator = {
+                    PullToRefreshDefaults.Indicator(
+                        modifier = Modifier.align(Alignment.TopCenter),
+                        isRefreshing = isRefreshing,
+                        state = pullRefreshState,
+                        color = MaterialTheme.colorScheme.primary, // Dönme efektinin rengi (İstersen Color.Blue vs. yapabilirsin)
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant // Yuvarlak arka plan rengi
+                    )
+                }
             ) {
                 when (val state = uiState) {
                     is UserUiState.Loading -> LoadingContent()
                     is UserUiState.Error -> {
-                        // Hata ekranı artık kaydırılarak yenilenebilecek
                         ErrorContent(message = state.message)
                     }
                     is UserUiState.Success -> {
@@ -139,13 +153,13 @@ private fun SearchBar(
         onValueChange = onQueryChange,
         modifier = modifier,
         placeholder = {
-            Text("Ara...", color = OutlineVariantColor)
+            Text("Ara...", color = MaterialTheme.colorScheme.outlineVariant) // Dinamik Tema Rengi
         },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
                 contentDescription = "Ara",
-                tint = OutlineVariantColor
+                tint = MaterialTheme.colorScheme.outlineVariant // Dinamik Tema Rengi
             )
         },
         trailingIcon = {
@@ -154,7 +168,7 @@ private fun SearchBar(
                     Icon(
                         imageVector = Icons.Default.Clear,
                         contentDescription = "Temizle",
-                        tint = OutlineVariantColor
+                        tint = MaterialTheme.colorScheme.outlineVariant // Dinamik Tema Rengi
                     )
                 }
             }
@@ -162,11 +176,11 @@ private fun SearchBar(
         singleLine = true,
         shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            unfocusedContainerColor = SurfaceContainerLowest,
-            focusedContainerColor = SurfaceContainerLowest,
-            unfocusedBorderColor = OutlineVariantColor.copy(alpha = 0.1f), // 10% Ghost Border
-            focusedBorderColor = PrimaryColor,
-            cursorColor = PrimaryColor
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant, // Dinamik Tema Rengi
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant, // Dinamik Tema Rengi
+            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.1f),
+            focusedBorderColor = MaterialTheme.colorScheme.primary, // Dinamik Tema Rengi
+            cursorColor = MaterialTheme.colorScheme.primary // Dinamik Tema Rengi
         )
     )
 }
@@ -175,11 +189,10 @@ private fun SearchBar(
 private fun ErrorContent(
     message: String
 ) {
-    // Ekran görüntüsündeki hata ekranının birebir kurgusu
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()) // AŞAĞI KAYDIRMAYI ALGILAMASI İÇİN ŞART
+            .verticalScroll(rememberScrollState())
             .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -188,13 +201,13 @@ private fun ErrorContent(
             modifier = Modifier
                 .size(120.dp)
                 .clip(CircleShape)
-                .background(ErrorContainerLight),
+                .background(MaterialTheme.colorScheme.errorContainer), // Dinamik Tema Rengi
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Warning,
                 contentDescription = "Hata",
-                tint = ErrorIconColor,
+                tint = MaterialTheme.colorScheme.error, // Dinamik Tema Rengi
                 modifier = Modifier.size(64.dp)
             )
         }
@@ -205,7 +218,7 @@ private fun ErrorContent(
             text = "Bir hata oluştu",
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold,
-                color = OnSurfaceColor
+                color = MaterialTheme.colorScheme.onSurface // Dinamik Tema Rengi
             )
         )
 
@@ -216,23 +229,23 @@ private fun ErrorContent(
             style = MaterialTheme.typography.bodyLarge.copy(
                 lineHeight = 24.sp
             ),
-            color = OutlineVariantColor,
+            color = MaterialTheme.colorScheme.outlineVariant, // Dinamik Tema Rengi
             textAlign = TextAlign.Center
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Yenilemek için ekranı aşağı kaydırın", // Kullanıcıyı yönlendiren ufak bir ipucu metni
+            text = "Yenilemek için ekranı aşağı kaydırın",
             style = MaterialTheme.typography.bodyMedium,
-            color = OutlineVariantColor,
+            color = MaterialTheme.colorScheme.outlineVariant, // Dinamik Tema Rengi
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
         Icon(
             imageVector = Icons.Default.KeyboardArrowDown,
             contentDescription = "Aşağı Kaydır",
-            tint = OutlineVariantColor,
+            tint = MaterialTheme.colorScheme.outlineVariant, // Dinamik Tema Rengi
             modifier = Modifier.size(36.dp)
         )
     }
@@ -241,23 +254,27 @@ private fun ErrorContent(
 @Composable
 private fun LoadingContent() {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
         contentAlignment = Alignment.Center
     ) {
-        CircularProgressIndicator(color = PrimaryColor)
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary) // Dinamik Tema Rengi
     }
 }
 
 @Composable
 private fun EmptySearchResult(query: String) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = "\"$query\" için sonuç bulunamadı",
             style = MaterialTheme.typography.bodyLarge,
-            color = OutlineVariantColor
+            color = MaterialTheme.colorScheme.outlineVariant // Dinamik Tema Rengi
         )
     }
 }
