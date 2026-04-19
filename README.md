@@ -73,11 +73,11 @@ com.mustafaderinoz.userapp
 
 |⏳ Loading |✅ Success  |❌ Error |
 |----------------------|------------------|----------------|
-| ![Login](screenshots/loading.jpg) | ![Feed](screenshots/success.jpg) | ![Upload](screenshots/error.jpg) |
+| ![Login](screenshots/loading.jpeg) | ![Feed](screenshots/success.jpeg) | ![Upload](screenshots/error.jpeg) |
 
 |🌙 Liste |🌑 Detay  |
 |----------------------|------------------|
-| ![Login](screenshots/dark1.jpg) | ![Feed](screenshots/dark2.jpg) | 
+| ![Login](screenshots/dark1.jpeg) | ![Feed](screenshots/dark2.jpeg) | 
 ---
 
 ## ⚙️ Kurulum ve Çalıştırma
